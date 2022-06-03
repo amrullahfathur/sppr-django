@@ -23,6 +23,12 @@
 	padding: 4px 16px;
 }
 
+.d3-context-menu ul li.disabled {
+	cursor: none;
+	pointer-events: none;
+	opacity: .5;
+}
+
 .d3-context-menu ul li:hover {
 	background-color: #4677f8;
 	color: #fefefe;

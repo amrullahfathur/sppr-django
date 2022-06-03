@@ -17,6 +17,54 @@
 </style>
 
 <main>
+  <!--Modal No Data-->
+  <div
+    class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
+    id="no-data"
+  >
+    <div class="relative w-auto my-6 mx-auto max-w-3xl">
+      <!--content-->
+      <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+        <!--header-->
+        <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+          <h3 class="text-3xl font-semibold">Detail Data Pendukung</h3>
+        </div>
+        <!--body-->
+        <div class="relative p-6 flex-auto w-auto">
+          <p class="my-4 text-blueGray-500 text-lg leading-relaxed">Keterangan Gambar</p>
+          <!-- component -->
+          <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css" />
+          <link
+            rel="stylesheet"
+            href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"
+          />
+          <section class="py-1 bg-blueGray-50">
+            <img src="{% static 'images/ss-korelasi.png' %}" alt="dummy image" srcset="">
+          </section>
+          <p class="my-4 text-blueGray-500 text-lg leading-relaxed">Keterangan Kalimat</p>
+          <!-- component -->
+          <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css" />
+          <link
+            rel="stylesheet"
+            href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"
+          />
+          <section class="p-5 py-1 bg-blueGray-50 text-justify">
+            <p>
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            </p>
+          </section>
+          <button
+            class="text-sm bg-gray-300 hover:bg-blue-500 hover:text-white text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center ease-linear transition-all duration-150"
+            type="button"
+            onclick="toggleModal('no-data')"
+          >
+            <span>Tutup Tabel</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Content header -->
   <div class="flex items-center justify-between px-4 py-4 border-b lg:py-6 dark:border-primary-darker">
     <h1 class="text-2xl font-semibold">{{judul}}</h1>
@@ -116,6 +164,9 @@
     .append("i")
     .attr("class", "fa-solid fa-arrow-up-right-from-square");
 
+  function toggleModal(modalID) {
+    $(`#${modalID}`).toggleClass("hidden")
+  }
   treeBoxes(treeData)
 
 </script>
