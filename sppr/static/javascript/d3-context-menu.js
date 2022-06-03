@@ -20,12 +20,37 @@ d3.contextMenu = function (menu, openCallback) {
 		list.selectAll('li').data(menu).enter()
 			.append('li')
 			.html(function(d) {
-				return (typeof d.title === 'string') ? d.title : d.title(data);
+				let html = ""
+				const id = d.title.split(" ")[0]
+				switch (id) {
+					case "Buat":
+						html = `<i class="fa-solid fa-plus"></i> Buat Child Isu Baru`
+						break;
+					case "Edit":
+						html = `<i class="fa-solid fa-pencil"></i> Edit Isu`
+						break;
+					case "Lihat":
+						html = `<i class="fa-solid fa-eye"></i> Lihat Data Pendukung Isu`
+						break;
+					default:
+						html = `<i class="fa-solid fa-trash-can"></i> Hapus Isu`
+						break;
+				}
+				return html;
+			})
+			.attr('class', function(d) {
+				const id = d.title.split(" ")[0]
+				switch (id) {
+					case "Edit":
+						return "disabled"
+					case "Hapus":
+						return "disabled"
+				}
 			})
 			.on('click', function(d, i) {
 				d.action(elm, data, index);
 				d3.select('.d3-context-menu').style('display', 'none');
-			});
+			})
 
 		// the openCallback allows an action to fire before the menu is displayed
 		// an example usage would be closing a tooltip
