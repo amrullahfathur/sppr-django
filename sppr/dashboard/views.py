@@ -328,7 +328,65 @@ def kebdaerah(request, menu):
         sub_menu = "ckfp"
 
     elif menu == "logis":
+        # Initialize local variable only for menu == "logis"
+        tujuans = []
+        data = {} # Variable to be used for Javascript Template
+        output_korelasi = []
+
         sub_menu = "kerangka-logis"
+        tahun = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+        provinsi = ProvinsiId.objects.all()
+        request_get = request.GET.get('options', "0-0")
+        pilih_provinsi = int(request_get.split("-")[0])
+        pilih_tahun = int(request_get.split("-")[1])
+
+        if (pilih_provinsi != 0 and pilih_tahun != 0):
+            tujuans = TujuanLFA.objects.all().filter(provinsi_id=pilih_provinsi, tahun=pilih_tahun)
+        elif (pilih_tahun != 0):
+            tujuans = TujuanLFA.objects.all().filter(tahun=pilih_tahun)
+        else:
+            tujuans = TujuanLFA.objects.all().filter(provinsi_id=pilih_provinsi)
+
+        data['tujuan'] = []
+        data['sasaran'] = []
+        data['output'] = []
+
+        for tujuan in tujuans:
+            data['tujuan'].append({
+                'id': tujuan.id,
+                'nama_tujuan': tujuan.nama_tujuan
+            })
+
+            for sasaran in tujuan.sasaranlfa_set.all():
+                data['sasaran'].append({
+                    'tujuan_id': tujuan.id,
+                    'id' : sasaran.id,
+                    'nama_sasaran': sasaran.nama_sasaran
+                })
+
+                for output in sasaran.outputlfa_set.all():
+                    data['output'].append({
+                        'sasaran_id': sasaran.id,
+                        'id' : output.id,
+                        'nama_output': output.nama_output
+                    })
+
+                    # Load longlist and query SkoringProyek
+                    for longlist in output.longlist_set.all():
+                        skoring = SkoringProyek.objects.get(proyek_id=longlist.id)
+                        output_korelasi.append({
+                            "judul_proyek": longlist.judul_proyek,
+                            "skoring": skoring
+                        })
+
+        dataJSON = dumps(data)
+
+        content['tahun'] = tahun
+        content['tujuans'] = tujuans
+        content['provinsi'] = provinsi
+        content['dataJSON'] = dataJSON
+        content['pilih_tahun'] = pilih_tahun
+        content['pilih_provinsi'] = pilih_provinsi
 
     else:
         sub_menu = "error"
