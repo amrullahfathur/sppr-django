@@ -32,15 +32,28 @@
 </h1>
 
 {% if messages %}
+{% for message in messages %}
+<!--Message dialog for success-->
+{% if message.level == 25  %}
 <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
   <div class="bg-green-500 text-white font-bold rounded-t px-4 py-2">
   </div>
   <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-    {% for message in messages %}
     <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-    {% endfor %}
   </div>
 </div>
+<!--Message dialog for error-->
+{% elif message.level == 40  %}
+<div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+  <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+  </div>
+  <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+    <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+  </div>
+</div>
+
+{% endif %}
+{% endfor %}
 {% endif %}
 
 <div class="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">

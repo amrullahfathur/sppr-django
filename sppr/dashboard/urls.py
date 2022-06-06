@@ -91,6 +91,8 @@ urlpatterns = [
     path('forms/edit_lfa/<str:tipe>',
          views.analisakerangkalogis, name='editLfa'),
 
+    path('forms/delete_lfa/<str:tipe>', views.deleteanalisakerangkalogis, name='deleteLfa'),
+
     # Path to download excel longlist data format
     path('download/format/longlist/',
          views.download_longlist_format, name="downloadLonglist"),

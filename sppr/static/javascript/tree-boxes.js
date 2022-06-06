@@ -1,26 +1,40 @@
 function treeBoxes(treeData) {
+  // CRUD entity isu strategis
+  var create_node_modal_active = false;
+  var rename_node_modal_active = false;
+  var create_node_parent = null;
+  var node_to_rename = null;
+
   // right click node context menu
   var menu = [
     {
-      title: "Buat Child Isu Baru",
+      title: `Buat Child Isu Baru`,
       action: function (elm, d, i) {
-        console.log("Rename node");
-        $("#RenameNodeName").val(d.name);
-        rename_node_modal_active = true;
-        node_to_rename = d;
-        $("#RenameNodeName").focus();
-        $("#RenameNodeModal").foundation("reveal", "open");
+        console.log("Create child node");
+        console.log(elm)
+        create_node_parent = d;
+        create_node_modal_active = true;
+        // create_node();
       }
     },
     {
-      title: "Edit Isu",
+      title: `Lihat Data Pendukung Isu`,
+      action: function (elm, d, i) {
+        console.log("Buka data pendukung isu");
+        create_node_parent = d;
+        create_node_modal_active = true;
+        toggleModal("no-data")
+      }
+    },
+    {
+      title: `Edit Isu`,
       action: function (elm, d, i) {
         console.log("Delete node");
         delete_node(d);
       }
     },
     {
-      title: "Hapus Isu",
+      title: `Hapus Isu`,
       action: function (elm, d, i) {
         console.log("Create child node");
         create_node_parent = d;
@@ -29,16 +43,6 @@ function treeBoxes(treeData) {
         $("#CreateNodeName").focus();
       }
     },
-    {
-      title: "Lihat Data Pendukung Isu",
-      action: function (elm, d, i) {
-        console.log("Create child node");
-        create_node_parent = d;
-        create_node_modal_active = true;
-        $("#CreateNodeModal").foundation("reveal", "open");
-        $("#CreateNodeName").focus();
-      }
-    }
   ];
 
   // Calculate total nodes, max label length
@@ -57,7 +61,8 @@ function treeBoxes(treeData) {
 
   var treemap;
 
-  var zoomListener = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+  var transform = d3.zoomIdentity.translate(132.217, 22.55).scale(0.308);
+  var zoomListener = d3.zoom().on("zoom", zoom);
 
   // append the svg object to the body of the page
   // appends a 'group' element to 'svg'
@@ -69,9 +74,11 @@ function treeBoxes(treeData) {
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .attr("class", "overlay")
-    .call(zoomListener);
+    .call(zoomListener)
+    .on("dblclick.zoom", null)
+    .call(zoomListener.transform, transform);
 
-  var svgGroup = baseSvg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var svgGroup = baseSvg.append("g").attr("class", "svgGroup").attr("transform", transform);
 
   // declares a tree layout and assigns the size
   treemap = d3
@@ -92,11 +99,27 @@ function treeBoxes(treeData) {
   root.children !== "undefined" ?? root.children.forEach(collapse);
 
   update(root);
-  window.location.href.split("/")[4] === "pis" && smallScaleDiagram();
   window.location.href.split("/")[4] === "pis_diagram" && centerNode(root);
 
-  function smallScaleDiagram() {
-    svgGroup.attr("transform", d3.zoomIdentity.translate(132.217, 22.55).scale(0.308));
+  // create new child node
+  function create_node() {
+    if (create_node_parent && create_node_modal_active) {
+      if (create_node_parent._children != null) {
+        create_node_parent.children = create_node_parent._children;
+        create_node_parent._children = null;
+      }
+      if (create_node_parent.children == null) {
+        create_node_parent.children = [];
+      }
+      id = generateUUID();
+      name = $("#CreateNodeName").val();
+      new_node = { name: name, id: id, depth: create_node_parent.depth + 1, children: [], _children: null };
+      console.log("Create Node name: " + name);
+      create_node_parent.children.push(new_node);
+      create_node_modal_active = false;
+      $("#CreateNodeName").val("");
+    }
+    update(create_node_parent);
   }
 
   // A recursive helper function for performing some setup by walking through all nodes
@@ -123,7 +146,7 @@ function treeBoxes(treeData) {
 
   // Define the zoom function for the zoomable tree
   function zoom() {
-    if (d3.event.transform != null) {
+    if (svgGroup) {
       svgGroup.attr("transform", d3.event.transform);
     }
   }
@@ -166,7 +189,6 @@ function treeBoxes(treeData) {
       }
     };
     childCount(0, root);
-    console.log(totalNodes);
     var newHeight = d3.max(levelWidth) * (totalNodes <= 20 ? 390 : 250); // 25 pixels per line
 
     treemap = d3.tree().size([newHeight, width]);
@@ -198,7 +220,8 @@ function treeBoxes(treeData) {
       .attr("transform", function (d) {
         return "translate(" + source.y0 + "," + source.x0 + ")";
       })
-      .on("click", click);
+      .on("click", d => click(d, "click"))
+      .on("dblclick", d => click(d, "dblclick"));
 
     var rectHeight = 150,
       rectWidth = "panjangteks",
@@ -243,7 +266,7 @@ function treeBoxes(treeData) {
       });
 
     // Add a context menu
-    node.on('contextmenu', d3.contextMenu(menu));
+    node.on("contextmenu", d3.contextMenu(menu));
 
     // Add labels for the nodes
     nodeEnter
@@ -397,13 +420,15 @@ function treeBoxes(treeData) {
     }
 
     // Toggle children on click.
-    function click(d) {
-      if (d.children) {
-        d._children = d.children;
-        d.children = null;
-      } else {
-        d.children = d._children;
-        d._children = null;
+    function click(d, listener) {
+      if (listener === "dblclick") {
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
+        }
       }
       update(d);
       window.location.href.split("/")[4] === "pis_diagram" && centerNode(d);

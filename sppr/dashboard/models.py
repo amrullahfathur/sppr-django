@@ -54,7 +54,7 @@ def current_year():
 
 
 class NewIsuStrategis(MPTTModel):
-    nama_isu = models.CharField(max_length=400, blank=False, null=False)
+    nama_isu = models.CharField(max_length=400, blank=False, null=False, default='')
     provinsi = models.ForeignKey(
         ProvinsiId, on_delete=models.SET_NULL, db_column='provinsi', blank=False, null=True)
     tahun = models.IntegerField(choices=year_choices(), default=2019)
@@ -85,9 +85,9 @@ class IsuStrategis(MPTTModel):
 
 
 class TujuanLFA(models.Model):
-    nama_tujuan = models.TextField(blank=False, null=False)
+    nama_tujuan = models.TextField(blank=False, null=False, default='')
     provinsi = models.ForeignKey(
-        "ProvinsiId", on_delete=models.CASCADE, blank=False, null=False)
+        "ProvinsiId", on_delete=models.SET_NULL, blank=False, null=True)
     tahun = models.IntegerField(choices=year_choices(), default=2019)
     indikator = models.TextField(max_length=500, blank=True, null=True)
     sumber_data = models.TextField(max_length=500, blank=True, null=True)
@@ -108,7 +108,7 @@ class TujuanLFA(models.Model):
 
 class SasaranLFA(models.Model):
     tujuan = models.ForeignKey(
-        'TujuanLFA', on_delete=models.CASCADE, blank=False, null=False)
+        'TujuanLFA', on_delete=models.CASCADE, blank=False, null=False, default='')
     nama_sasaran = models.TextField(blank=False, null=False)
     indikator = models.TextField(max_length=500, blank=True, null=True)
     sumber_data = models.TextField(max_length=500, blank=True, null=True)
@@ -139,7 +139,7 @@ class SasaranLFA(models.Model):
 
 class OutputLFA(models.Model):
     sasaran = models.ForeignKey(
-        'SasaranLFA', on_delete=models.CASCADE, blank=False, null=False)
+        'SasaranLFA', on_delete=models.CASCADE, blank=False, null=False, default='')
     nama_output = models.TextField(blank=False, null=False)
     indikator = models.TextField(max_length=500, blank=True, null=True)
     sumber_data = models.TextField(max_length=500, blank=True, null=True)

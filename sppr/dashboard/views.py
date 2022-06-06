@@ -920,6 +920,33 @@ def addIsuStrategis(request):
 
 # CRUD Hasil Kerangka Logis
 
+@login_required(login_url='login')
+def deleteanalisakerangkalogis(request, tipe):
+    tujuan_id = int(request.GET.get("tujuan_id", 0))
+    sasaran_id = int(request.GET.get("sasaran_id", 0))
+    output_id = int(request.GET.get("output_id", 0))
+    pilih_provinsi = int(request.GET.get("provinsi_id", 0))
+    pilih_tahun = int(request.GET.get("tahun", 0))
+    tujuan_instance = TujuanLFA.objects.get(pk=tujuan_id) if tujuan_id != 0 else None
+    sasaran_instance = SasaranLFA.objects.get(pk=sasaran_id) if sasaran_id != 0 else None
+    output_instance = OutputLFA.objects.get(pk=output_id) if output_id != 0 else None
+
+    # Delete tujuan LFA
+    if tipe == 'tujuan':
+        tujuan_instance.delete()
+        messages.success(request, 'Berhasil Menghapus Tujuan LFA') 
+    
+    # Delete sasaran LFA
+    if tipe == 'sasaran':
+        sasaran_instance.delete()
+        messages.success(request, 'Berhasil Menghapus Sasaran LFA') 
+
+    # Delete output LFA
+    if tipe == 'output':
+        output_instance.delete()
+        messages.success(request, 'Berhasil Menghapus output LFA') 
+
+    return HttpResponseRedirect(f'/profil/akl/?options={pilih_provinsi}-{pilih_tahun}')
 
 @login_required(login_url='login')
 def analisakerangkalogis(request, tipe):
@@ -937,6 +964,7 @@ def analisakerangkalogis(request, tipe):
     if tipe == 'tujuan':
         content_title = "tujuan"
         form = Tujuan_LFA_Form() if request.path.split("/")[1] == "add_lfa" else Tujuan_LFA_Form(instance=tujuan_instance)
+        # Create and Edit tujuan LFA
         if request.method == 'POST':
             form = Tujuan_LFA_Form(request.POST or None, instance=tujuan_instance)
             if form.is_valid():
@@ -945,12 +973,13 @@ def analisakerangkalogis(request, tipe):
             else:
                 messages.error(request, 'Gagal Menambahkan/Mengubah Tujuan LFA') 
 
-            return HttpResponseRedirect('/forms/add_lfa/sasaran') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?pilih_provinsi={tujuan_instance.provinsi_id}')
+            return HttpResponseRedirect('/forms/add_lfa/sasaran') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?options={tujuan_instance.provinsi_id}-0')
 
     elif tipe == 'sasaran':
         content_title = "sasaran"
         form = Sasaran_LFA_Form() if request.path.split("/")[1] == "add_lfa" else Sasaran_LFA_Form(instance=sasaran_instance)
         provinsi = ProvinsiId.objects.all()
+        # Create and Edit sasaran LFA
         if request.method == 'POST':
             form = Sasaran_LFA_Form(request.POST or None, instance=sasaran_instance)
             if form.is_valid():
@@ -959,12 +988,13 @@ def analisakerangkalogis(request, tipe):
             else:
                 messages.error(request, 'Gagal Menambahkan/Mengubah Sasaran LFA')
 
-            return HttpResponseRedirect('/forms/add_lfa/output') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?pilih_provinsi={sasaran_instance.tujuan.provinsi_id}')
+            return HttpResponseRedirect('/forms/add_lfa/output') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?options={sasaran_instance.tujuan.provinsi_id}-0')
 
     elif tipe == 'output':
         content_title = "output"
         form = Output_LFA_Form() if request.path.split("/")[1] == "add_lfa" else Output_LFA_Form(instance=output_instance)
         provinsi = ProvinsiId.objects.all()
+        # Create and Edit output LFA
         if request.method == 'POST':
             form = Output_LFA_Form(request.POST or None, instance=output_instance)
             if form.is_valid():
@@ -973,7 +1003,7 @@ def analisakerangkalogis(request, tipe):
             else:
                 messages.error(request, 'Gagal Menambahkan/Mengubah Output LFA')
 
-            return HttpResponseRedirect('/forms/add_lfa/tujuan') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?pilih_provinsi={output_instance.sasaran.tujuan.provinsi_id}')
+            return HttpResponseRedirect('/forms/add_lfa/tujuan') if (page_mode == "add_lfa") else HttpResponseRedirect(f'/profil/akl/?options={output_instance.sasaran.tujuan.provinsi_id}-0')
     else:
         content_title = None
 

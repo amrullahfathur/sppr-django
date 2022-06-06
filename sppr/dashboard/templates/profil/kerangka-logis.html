@@ -1,6 +1,30 @@
 {% extends 'parts/main.html' %} {% load static %} {% load filter_tags %} {% block content %}
 <main>
-  <!--Modal with Data-->
+  {% if messages %}
+  {% for message in messages %}
+  <!--Message dialog for success-->
+  {% if message.level == 25  %}
+  <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+    <div class="bg-green-500 text-white font-bold rounded-t px-4 py-2">
+    </div>
+    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+      <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    </div>
+  </div>
+  <!--Message dialog for error-->
+  {% elif message.level == 40  %}
+  <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+    <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    </div>
+    <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+      <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+
+  <!--Modal Output Korelasi with Data-->
   {% for korelasi in output_korelasi %}
   <div
     class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
@@ -113,7 +137,7 @@
   </div>
   {% endfor %}
 
-  <!--Modal No Data-->
+  <!--Modal Output Korelasi No Data-->
   <div
     class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
     id="no-data"
@@ -195,6 +219,18 @@
             <span>Tutup Tabel</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Modal Delete LFA Confirmation-->
+  <div class="modal" id="modal-delete-confirmation">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg" id="modal-delete-title">Konfirmasi Penghapusan</h3>
+      <p class="py-4" id="modal-delete-message">Apakah Anda yakin untuk menghapus data tujuan!</p>
+      <div class="modal-action">
+        <a href="#" class="btn btn-outline">Batal</a>
+        <a href="#" class="btn btn-error" id="modal-delete-yes">Hapus</a>
       </div>
     </div>
   </div>
@@ -319,6 +355,11 @@
               <tr class="text-center p-4">
                 <td colspan="7" class="border-dashed border-t bg-purple-500 text-white font-bold text-center p-3">
                   Tujuan {{ forloop.counter }}
+                  <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold m-1 p-1 rounded-l" onclick="handleDeleteButton('tujuan_{{ tujuan }}_{{ tujuan.id }}')">
+                    <a href="#modal-delete-confirmation">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                  </button>
                   <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold m-1 p-1 rounded-l">
                     <a href="{% url 'editLfa' 'tujuan' %}?tujuan_id={{ tujuan.id }}">
                       <i class="fa-solid fa-pencil"></i>
@@ -330,7 +371,7 @@
                     onclick="toggleModal('{{ tujuan.id }}')"
                     data-tip="Klik Animasi Dibawah Untuk Membuka dan Menutup Sasaran!"
                   >
-                    <p>+</p>
+                    <i class="fa-solid fa-arrow-down"></i>
                   </button>
                 </td>
               </tr>
@@ -368,6 +409,11 @@
                     <tr class="text-center p-4">
                       <td colspan="7" class="border-dashed border-t bg-purple-400 text-white font-bold text-center p-3">
                         Sasaran {{ forloop.parentloop.counter }}.{{ forloop.counter }}
+                        <button class="bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l" onclick="handleDeleteButton('sasaran_{{ sasaran }}_{{ sasaran.id }}')">
+                          <a href="#modal-delete-confirmation">
+                            <i class="fa-solid fa-trash-can"></i>
+                          </a>
+                        </button>
                         <button class="bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l">
                           <a href="{% url 'editLfa' 'sasaran' %}?sasaran_id={{ sasaran.id }}">
                             <i class="fa-solid fa-pencil"></i>
@@ -379,7 +425,7 @@
                           class="collapse bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l"
                           onclick="toggleModal('{{ sasaran.id }}')"
                         >
-                          <p>+</p>
+                          <i class="fa-solid fa-arrow-down"></i>
                         </button>
                         {% endif %}
                       </td>
@@ -423,6 +469,11 @@
                             class="border-dashed border-t bg-purple-300 text-gray-800 font-bold text-center p-3"
                           >
                             Output {{ forloop.parentloop.parentloop.counter }}.{{ forloop.parentloop.counter }}.{{ forloop.counter }}
+                            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold m-1 p-1 rounded-l" onclick="handleDeleteButton('output_{{ output }}_{{ output.id }}')">
+                              <a href="#modal-delete-confirmation">
+                                <i class="fa-solid fa-trash-can"></i>
+                              </a>
+                            </button>
                             <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold m-1 p-1 rounded-l">
                               <a href="{% url 'editLfa' 'output' %}?output_id={{ output.id }}">
                                 <i class="fa-solid fa-pencil"></i>
@@ -513,10 +564,10 @@
 
         if (state) {
           $(`#button-${tujuan.id}`).addClass("expand").removeClass("collapse")
-          $(`#button-${tujuan.id} p`).replaceWith("<p>-</p>")
+          $(`#button-${tujuan.id} i`).replaceWith(`<i class="fa-solid fa-arrow-up"></i>`)
         } else {
           $(`#button-${tujuan.id}`).addClass("collapse").removeClass("expand")
-          $(`#button-${tujuan.id} p`).replaceWith("<p>+</p>")
+          $(`#button-${tujuan.id} i`).replaceWith(`<i class="fa-solid fa-arrow-down"></i>`)
         }
       })
     });
@@ -536,10 +587,10 @@
 
         if (state) {
           $(`#button-${sasaran.id}`).addClass("expand").removeClass("collapse")
-          $(`#button-${sasaran.id} p`).replaceWith("<p>-</p>")
+          $(`#button-${sasaran.id} i`).replaceWith(`<i class="fa-solid fa-arrow-up"></i>`)
         } else {
           $(`#button-${sasaran.id}`).addClass("collapse").removeClass("expand")
-          $(`#button-${sasaran.id} p`).replaceWith("<p>+</p>")
+          $(`#button-${sasaran.id} i`).replaceWith(`<i class="fa-solid fa-arrow-down"></i>`)
         }
       })
     })
@@ -548,8 +599,38 @@
       $(`#${output.id}`).addClass('hidden');
     })
 
+    // Message confirmation timeout after submit form
+    setTimeout(function () {
+      $('#msg').remove();
+    }, 3000)
     
   });
+
+  function handleDeleteButton(value) {
+    let lfaType = value.split("_")[0]
+    let dataObject = value.split("_")[1]
+    let dataId = value.split("_")[2]
+
+    $(`#modal-delete-title`).replaceWith(`
+      <h3 class="font-bold text-lg" id="modal-delete-title">
+        Konfirmasi Penghapusan ${lfaType} ID (${dataId})
+      </h3>
+    `)
+
+    $(`#modal-delete-message`).replaceWith(`
+      <p class="py-4" id="modal-delete-message">
+        Apakah Anda yakin untuk menghapus data <br /> <b>${dataObject}!</b>
+      </p>
+    `)
+  
+    $(`#modal-delete-yes`).replaceWith(`
+      ${
+        lfaType === 'tujuan' ? `<a href="{% url 'deleteLfa' 'tujuan' %}?tujuan_id=${dataId}&provinsi_id={{ pilih_provinsi }}&tahun={{ pilih_tahun }}" class="btn btn-error" id="modal-delete-yes">Hapus</a>` : 
+        lfaType === 'sasaran' ? `<a href="{% url 'deleteLfa' 'sasaran' %}?sasaran_id=${dataId}&provinsi_id={{ pilih_provinsi }}&tahun={{ pilih_tahun }}" class="btn btn-error" id="modal-delete-yes">Hapus</a>` : 
+        `<a href="{% url 'deleteLfa' 'output' %}?output_id=${dataId}&provinsi_id={{ pilih_provinsi }}&tahun={{ pilih_tahun }}" class="btn btn-error" id="modal-delete-yes">Hapus</a>`
+      }
+    `)
+  }
   
   function toggleModal(modalID) {
     let buttonParentID = $(`#${modalID}`).parent().eq(0).attr("id") // This gets id attribute of + button ID
