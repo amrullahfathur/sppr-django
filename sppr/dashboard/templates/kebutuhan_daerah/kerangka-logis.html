@@ -317,16 +317,16 @@
             {% for tujuan in tujuans %}
             <tbody id="tujuan-data">
               <tr class="text-center p-4">
-                <td colspan="7" class="border-dashed border-t bg-purple-500 text-white font-bold text-center p-3">
-                  Tujuan {{ forloop.counter }} : {{ tujuan.nama_tujuan }}
+                <td colspan="7" class="border-dashed border-t bg-purple-500 text-white font-bold text-left p-3" style="padding-left: 100px;">
+                  Tujuan {{ forloop.counter }}: {{ tujuan.nama_tujuan }}
                 </td>
               </tr>
               <tr>
                 {% for sasaran in tujuan.sasaranlfa_set.all %}
                 <tbody id="sasaran-data">
                   <tr class="text-center p-4">
-                    <td colspan="7" class="border-dashed border-t bg-purple-400 text-white font-bold text-center p-3">
-                      Sasaran {{ forloop.parentloop.counter }}.{{ forloop.counter }} : {{ sasaran.nama_sasaran }}
+                    <td colspan="7" class="border-dashed border-t bg-purple-400 text-white font-bold text-left p-3" style="padding-left: 200px;">
+                      Sasaran: {{ sasaran.nama_sasaran }}
                     </td>
                   </tr>
                   <tr>
@@ -336,9 +336,10 @@
                         <tr class="text-center p-4">
                           <td
                             colspan="7"
-                            class="border-dashed border-t bg-purple-300 text-gray-800 font-bold text-center p-3"
+                            class="border-dashed border-t bg-purple-300 text-gray-800 font-bold text-left p-3"
+                            style="padding-left: 300px;"
                           >
-                            Output {{ forloop.parentloop.parentloop.counter }}.{{ forloop.parentloop.counter }}.{{ forloop.counter }} : {{ output.nama_output }}
+                            Output: {{ output.nama_output }}
                             <button
                               id="button-{{ output.id }}"
                               class="collapse bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l"
@@ -394,7 +395,7 @@
                               colspan="7"
                               class="border-dashed border-t bg-purple-100 text-gray-800 font-bold text-center p-3"
                             >
-                              Aktivitas 1.1.1.1 : Aktivitas dummy 1.1.1.1
+                              Aktivitas: Peningkatan Kompetensi lulusan SMK yang sesuai dengan kebutuhan Dunia Usaha dan Industri (DUDI)
                               <button
                                 id="button-aktivitas-{{ output.id }}"
                                 class="collapse bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l"
