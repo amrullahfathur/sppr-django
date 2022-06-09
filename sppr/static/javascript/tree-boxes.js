@@ -29,8 +29,8 @@ function treeBoxes(treeData) {
     {
       title: `Edit Isu`,
       action: function (elm, d, i) {
-        console.log("Delete node");
-        delete_node(d);
+        console.log("Edit node");
+        edit_node(d)
       }
     },
     {
@@ -129,6 +129,14 @@ function treeBoxes(treeData) {
     }
     currentNodes = 0 // reset to zero for recalculate to sum all nodes (this node + child nodes)
     outer_update(create_node_parent, mode="create_node");
+  }
+
+  // edit current node
+  function edit_node(node) {
+    let isuId = node.data.id
+    let provinsiId = node.data.provinsi_id
+    let pageReferer = window.location.pathname.split("/")[2]
+    window.location.href = `/forms/isu_strategis/edit?provinsi_id=${provinsiId}&isu_id=${isuId}&page_referer=${pageReferer}`
   }
 
   // A recursive helper function for performing some setup by walking through all nodes

@@ -79,6 +79,8 @@ urlpatterns = [
     # Path to CRUD Isu Strategis
     path('forms/isu_strategis/add',
          views.addIsuStrategis, name='addIsu'),
+    path('forms/isu_strategis/edit',
+         views.editIsuStrategis, name='editIsu'),
 
     # Path to CRUD Skoring
     path('forms/skoring/update/<int:pk>',

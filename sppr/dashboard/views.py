@@ -908,7 +908,15 @@ def updateHasilSkoring(request, pk):
 
     return render(request, 'forms/dpp-update.html', content)
 
+
+"""
+
+    CRUD Isu Strategis
+
+"""
+
 # Create Isu Strategis
+
 
 @login_required(login_url='login')
 def addIsuStrategis(request):
@@ -916,6 +924,7 @@ def addIsuStrategis(request):
     isu_id = 0
     provinsi_id = 0
     nama_isu = ""
+    page_mode = "create"
     page_referer = request.META.get('HTTP_REFERER').split("/")[4]
     form = IsuStrategisForm()
 
@@ -936,13 +945,52 @@ def addIsuStrategis(request):
             return HttpResponseRedirect(f'/profil/pis?options={provinsi_id}-{isu_id}')
         else:
             messages.error(request, 'Gagal Menambahkan Isu Strategis')
-            if page_referer == "profil":
+            if page_referer == "pis":
+                return HttpResponseRedirect('/profil/pis')
+            elif page_referer == "pis_diagram":
+                return HttpResponseRedirect('/profil/pis_diagram')
+            else:
+                return HttpResponseRedirect('/forms/isu_strategis/add')
+
+    return render(request, 'forms/isu-strategis.html', {'content': {
+        'form': form,
+        'page_mode': page_mode
+    }})
+
+# Edit Isu Strategis
+
+
+@login_required(login_url='login')
+def editIsuStrategis(request):
+    isu_id = int(request.GET.get("isu_id", 0))
+    provinsi_id = int(request.GET.get("provinsi_id", 0))
+    page_referer = request.GET.get("page_referer", "")
+    page_mode = "edit"
+    isu_instance = NewIsuStrategis.objects.get(pk=isu_id)
+    form = IsuStrategisForm(instance=isu_instance)
+
+    if request.method == 'POST':
+        modify_post = request.POST.copy()
+        modify_post['parent'] = isu_instance.parent.id
+        request.POST = modify_post
+        form = IsuStrategisForm(request.POST, instance=isu_instance)
+        if form.is_valid():
+            form.save()
+            head_id = isu_instance.get_ancestors()[0].id
+            messages.success(request, 'Berhasil Mengubah Isu Strategis!')
+            if page_referer == "pis_diagram":
+                return HttpResponseRedirect(f'/profil/pis_diagram?options={provinsi_id}-{head_id}')
+            return HttpResponseRedirect(f'/profil/pis?options={provinsi_id}-{head_id}')
+        else:
+            messages.error(request, 'Gagal Menambahkan Isu Strategis')
+            if page_referer == "pis":
                 return HttpResponseRedirect('/profil/pis')
             else:
                 return HttpResponseRedirect('/forms/isu_strategis/add')
 
     return render(request, 'forms/isu-strategis.html', {'content': {
-        'form': form
+        'form': form,
+        'page_mode': page_mode
     }})
 
 # CRUD Hasil Kerangka Logis

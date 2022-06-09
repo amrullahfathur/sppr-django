@@ -41,8 +41,6 @@ d3.contextMenu = function (menu, openCallback) {
 			.attr('class', function(d) {
 				const id = d.title.split(" ")[0]
 				switch (id) {
-					case "Edit":
-						return "disabled"
 					case "Hapus":
 						return "disabled"
 				}

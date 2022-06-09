@@ -2,7 +2,13 @@
 
 <!-- Content header -->
 <div class="flex items-center justify-between px-4 py-4 border-b lg:py-6 dark:border-primary-darker">
-  <h1 class="text-2xl font-semibold">Menambahkan Isu Strategis</h1>
+  <h1 class="text-2xl font-semibold">
+    {% if page_mode == "create" %}
+    Menambahkan Isu Strategis
+    {% else %}
+    Mengubah Isu Strategis
+    {% endif %}
+  </h1>
 </div>
 
 {% if messages %}
@@ -69,7 +75,11 @@
       class="rounded-2xl bg-blue-500 float-right hover:bg-blue-700 text-white font-bold py-2 px-4 mt-5 mb-5 ml-2"
       onclick=""
     >
+      {% if page_mode == "create" %}
       <p>Simpan</p>
+      {% else %}
+      <p>Ubah</p>
+      {% endif %}
     </button>
     <!-- <button class="rounded-2xl bg-gray-500 float-right hover:bg-gray-700 text-white font-bold py-2 px-4 mt-5 mb-5 ml-2"
       onclick="">
