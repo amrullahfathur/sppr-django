@@ -17,6 +17,30 @@
 </style>
 
 <main>
+  {% if messages %}
+  {% for message in messages %}
+  <!--Message dialog for success-->
+  {% if message.level == 25  %}
+  <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+    <div class="bg-green-500 text-white font-bold rounded-t px-4 py-2">
+    </div>
+    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+      <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    </div>
+  </div>
+  <!--Message dialog for error-->
+  {% elif message.level == 40  %}
+  <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+    <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    </div>
+    <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+      <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+
   <!--Modal No Data-->
   <div
     class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
@@ -81,20 +105,19 @@
         </div>
         <!-- Main Content -->
 
-        <form method="post">
-          {% csrf_token %}
+        <form method="GET" action="{% url 'profil' 'pis' %}?pilih_provinsi={{ pilih_provinsi }}&pilih_isu_strategis={{ pilih_isu_strategis }}">
           <div class="mt-5 mb-5">
             <p class="p-5">Pilih Provinsi</p>
             <select
               id="pilih_provinsi"
-              name="pilih_provinsi"
+              name="options"
               onchange="form.submit()"
               class="relative block appearance-none w-1/4 bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-purple-500 focus:bg-white focus:border-gray-500'"
             >
               <option value="" selected disabled hidden>Pilih Provinsi</option>
               {% for provinsi in provinsi %}
               <option 
-                value={{ provinsi.provinsi_id }}
+                value="{{ provinsi.provinsi_id }}-{{ pilih_isu_strategis }}"
                 {% if provinsi.provinsi_id == pilih_provinsi %}selected{% endif %}
               >
                 {{ provinsi.nama_provinsi }}
@@ -103,13 +126,12 @@
             </select>
           </div>
         </form>
-        <form method="post">
-          {% csrf_token %}
+        <form method="GET" action="{% url 'profil' 'pis' %}?pilih_provinsi={{ pilih_provinsi }}&pilih_isu_strategis={{ pilih_isu_strategis }}">
           <div class="mt-5 mb-5">
             <p class="p-5">Pilih Isu Strategis</p>
             <select
               id="pilih_isu_strategis"
-              name="pilih_isu_strategis"
+              name="options"
               onchange="form.submit()"
               class="whitespace-pre-wrap relative block appearance-none w-1/4 bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-purple-500 focus:bg-white focus:border-gray-500'"
             >
@@ -157,15 +179,65 @@
     .style("height", 100)
     .style("color", "gray")
     .append("a")
-    .attr("href", "{% url 'profil' 'pis_diagram' %}?pilih_provinsi={{ pilih_provinsi }}&pilih_isu_strategis={{ pilih_isu_strategis }}")
+    .attr("href", "{% url 'profil' 'pis_diagram' %}?options={{ pilih_provinsi }}-{{ pilih_isu_strategis }}")
     .attr("target", "_blank")
     .append("p")
     .text("Lihat Diagram")
     .append("i")
     .attr("class", "fa-solid fa-arrow-up-right-from-square");
 
+  // Message confirmation timeout after submit form
+  setTimeout(function () {
+    $('#msg').remove();
+  }, 3000)
+
   function toggleModal(modalID) {
     $(`#${modalID}`).toggleClass("hidden")
+  }
+  function createNodeChildForm(d) {
+    let node = d
+    return `
+      <form action="{% url 'addIsu' %}" method="post">
+        {% csrf_token %}
+        <input 
+          hidden
+          id="parent"
+          name="parent"
+          type="text" 
+          value="${node.parent.data.id}"
+        />
+        <input 
+          hidden
+          id="provinsi"
+          name="provinsi"
+          type="text" 
+          value="${node.parent.data.provinsi_id}" 
+        />
+        <input 
+          hidden
+          id="tahun"
+          name="tahun"
+          type="text" 
+          value="2019"
+        />
+        <input 
+          hidden
+          id="data_pendukung"
+          name="data_pendukung"
+          type="text" 
+          value=""
+        />
+        <input 
+          required
+          id="add-child-isu"
+          name="nama_isu"
+          type="text" 
+          value="Masukkan Isu Baru" 
+          style="width: 350px;"
+        />
+        <input type="submit" hidden />
+      </form>
+    `
   }
   treeBoxes(treeData)
 

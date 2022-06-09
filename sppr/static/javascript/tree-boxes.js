@@ -4,6 +4,7 @@ function treeBoxes(treeData) {
   var rename_node_modal_active = false;
   var create_node_parent = null;
   var node_to_rename = null;
+  var outer_update = null;
 
   // right click node context menu
   var menu = [
@@ -11,10 +12,9 @@ function treeBoxes(treeData) {
       title: `Buat Child Isu Baru`,
       action: function (elm, d, i) {
         console.log("Create child node");
-        console.log(elm)
         create_node_parent = d;
         create_node_modal_active = true;
-        // create_node();
+        create_node();
       }
     },
     {
@@ -23,7 +23,7 @@ function treeBoxes(treeData) {
         console.log("Buka data pendukung isu");
         create_node_parent = d;
         create_node_modal_active = true;
-        toggleModal("no-data")
+        toggleModal("no-data");
       }
     },
     {
@@ -42,11 +42,12 @@ function treeBoxes(treeData) {
         $("#CreateNodeModal").foundation("reveal", "open");
         $("#CreateNodeName").focus();
       }
-    },
+    }
   ];
 
   // Calculate total nodes, max label length
-  var totalNodes = 0;
+  var currentNodes = 0; // calculate total current nodes on canvas
+  var initNodes = 0; // calculate initial total nodes on canvas (based on databases)
   var maxLabelLength = 0;
 
   // Set the dimensions and margins of the diagram
@@ -78,6 +79,7 @@ function treeBoxes(treeData) {
     .on("dblclick.zoom", null)
     .call(zoomListener.transform, transform);
 
+  outer_update = update;
   var svgGroup = baseSvg.append("g").attr("class", "svgGroup").attr("transform", transform);
 
   // declares a tree layout and assigns the size
@@ -111,15 +113,22 @@ function treeBoxes(treeData) {
       if (create_node_parent.children == null) {
         create_node_parent.children = [];
       }
-      id = generateUUID();
-      name = $("#CreateNodeName").val();
-      new_node = { name: name, id: id, depth: create_node_parent.depth + 1, children: [], _children: null };
-      console.log("Create Node name: " + name);
+      new_node = {
+        name: `Klik 2x untuk menambahkan anak isu baru`,
+        isNewChildNode: true,
+        children: [],
+        _children: null
+      };
+      new_node = d3.hierarchy(new_node);
+      new_node.depth = create_node_parent.depth + 1
+      new_node.height = create_node_parent.height - 1
+      new_node.parent = create_node_parent
       create_node_parent.children.push(new_node);
+      create_node_parent.data.children.push(new_node.data)
       create_node_modal_active = false;
-      $("#CreateNodeName").val("");
     }
-    update(create_node_parent);
+    currentNodes = 0 // reset to zero for recalculate to sum all nodes (this node + child nodes)
+    outer_update(create_node_parent, mode="create_node");
   }
 
   // A recursive helper function for performing some setup by walking through all nodes
@@ -164,18 +173,19 @@ function treeBoxes(treeData) {
       .call(zoomListener.transform, d3.zoomIdentity.translate(x, y).scale(t.k));
   }
 
-  function update(source) {
+  function update(source, mode="init") {
     // Call visit function to establish maxLabelLength
     visit(
       source,
       function (d) {
-        totalNodes++;
+        currentNodes++;
         maxLabelLength = Math.max(d.data.name.length, maxLabelLength);
       },
       function (d) {
         return d.children && d.children.length > 0 ? d.children : null;
       }
     );
+    if (mode === "init") initNodes = currentNodes
 
     var levelWidth = [1];
     var childCount = function (level, n) {
@@ -189,7 +199,7 @@ function treeBoxes(treeData) {
       }
     };
     childCount(0, root);
-    var newHeight = d3.max(levelWidth) * (totalNodes <= 20 ? 390 : 250); // 25 pixels per line
+    var newHeight = d3.max(levelWidth) * (initNodes <= 20 ? 390 : 250); // 25 pixels per line
 
     treemap = d3.tree().size([newHeight, width]);
 
@@ -202,8 +212,12 @@ function treeBoxes(treeData) {
 
     // Normalize for fixed-depth.
     nodes.forEach(function (d) {
-      d.y = d.depth * (maxLabelLength * (totalNodes <= 20 ? 15 : 10)); //maxLabelLength * 10px
+      d.y = d.depth * (maxLabelLength * (
+        initNodes <= 20 && maxLabelLength <= 30 ? 30 : 10
+      )); //maxLabelLength * (n)px
     });
+    console.log(maxLabelLength)
+    console.log(initNodes)
 
     // ****************** Nodes section ***************************
 
@@ -280,12 +294,27 @@ function treeBoxes(treeData) {
       .text(function (d) {
         return d.data.name;
       })
+      .on('dblclick', function(d, i) {
+        if (d.data.isNewChildNode) {
+          nodeEnter
+            .selectAll("text")
+            .remove()
+          nodeEnter
+            .append("foreignObject")
+            .attr("x", 10)
+            .attr("y", -20)
+            .attr("width", 350)
+            .attr("height", 60)
+            .html(createNodeChildForm)
+        }
+      })
       .style("fill", "white")
       .style("font-size", "1.1em")
       .style("font-weight", "bold")
       .attr("dy", ".9em")
       .style("max-width", panjangteks)
       .style("text-align", "center")
+      .style("cursor", "text")
       .call(wrap, 320);
 
     // UPDATE
@@ -421,6 +450,7 @@ function treeBoxes(treeData) {
 
     // Toggle children on click.
     function click(d, listener) {
+      currentNodes = 0 // reset to zero for recalculate to sum all nodes (this node + child nodes)
       if (listener === "dblclick") {
         if (d.children) {
           d._children = d.children;
@@ -430,7 +460,7 @@ function treeBoxes(treeData) {
           d._children = null;
         }
       }
-      update(d);
+      update(d, "click");
       window.location.href.split("/")[4] === "pis_diagram" && centerNode(d);
     }
   }

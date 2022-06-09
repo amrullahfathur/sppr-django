@@ -9,15 +9,93 @@
     <title>Live Diagram</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;900&display=swap" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="{% static 'css/tailwind_output.min.css' %}" type="text/css" />
     <link rel="stylesheet" href="{% static 'css/daisyui.min.css' %}" type="text/css" />
     <link rel="stylesheet" href="{% static 'css/tree-boxes.css' %}" type="text/css" />
     <link rel="stylesheet" href="{% static 'css/d3-context-menu.min.css' %}" type="text/css" />
-    
   </head>
   <body>
+    {% if messages %} {% for message in messages %}
+    <!--Message dialog for success-->
+    {% if message.level == 25 %}
+    <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+      <div class="bg-green-500 text-white font-bold rounded-t px-4 py-2"></div>
+      <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+        <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}>{{ message }}</li>
+      </div>
+    </div>
+    <!--Message dialog for error-->
+    {% elif message.level == 40 %}
+    <div class="mt-10 mb-5 ml-20 mr-20" role="alert" id="msg">
+      <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2"></div>
+      <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+        <li {% if message.tags %} class=" {{ message.tags }} " {% endif %}>{{ message }}</li>
+      </div>
+    </div>
+    {% endif %} {% endfor %} {% endif %}
+
+    <!--Modal No Data-->
+    <div
+      class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
+      id="no-data"
+    >
+      <div class="relative w-auto my-6 mx-auto max-w-3xl">
+        <!--content-->
+        <div
+          class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"
+        >
+          <!--header-->
+          <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+            <h3 class="text-3xl font-semibold">Detail Data Pendukung</h3>
+          </div>
+          <!--body-->
+          <div class="relative p-6 flex-auto w-auto">
+            <p class="my-4 text-blueGray-500 text-lg leading-relaxed">Keterangan Gambar</p>
+            <!-- component -->
+            <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css" />
+            <link
+              rel="stylesheet"
+              href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"
+            />
+            <section class="py-1 bg-blueGray-50">
+              <img src="{% static 'images/ss-korelasi.png' %}" alt="dummy image" srcset="" />
+            </section>
+            <p class="my-4 text-blueGray-500 text-lg leading-relaxed">Keterangan Kalimat</p>
+            <!-- component -->
+            <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css" />
+            <link
+              rel="stylesheet"
+              href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"
+            />
+            <section class="p-5 py-1 bg-blueGray-50 text-justify">
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
+                scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap
+                into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the
+                release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing
+                software like Aldus PageMaker including versions of Lorem Ipsum.
+              </p>
+            </section>
+            <button
+              class="text-sm bg-gray-300 hover:bg-blue-500 hover:text-white text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center ease-linear transition-all duration-150"
+              type="button"
+              onclick="toggleModal('no-data')"
+            >
+              <span>Tutup Tabel</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div>
       <div id="tree-container"></div>
     </div>
@@ -33,6 +111,58 @@
     <script>
       let data = JSON.parse("{{ dataJSON|escapejs }}");
       var treeData = data;
+      // Message confirmation timeout after submit form
+      setTimeout(function () {
+        $("#msg").remove();
+      }, 3000);
+      function toggleModal(modalID) {
+        $(`#${modalID}`).toggleClass("hidden");
+      }
+      function createNodeChildForm(d) {
+        let node = d;
+        return `
+          <form action="{% url 'addIsu' %}" method="post">
+            {% csrf_token %}
+            <input 
+              hidden
+              id="parent"
+              name="parent"
+              type="text" 
+              value="${node.parent.data.id}"
+            />
+            <input 
+              hidden
+              id="provinsi"
+              name="provinsi"
+              type="text" 
+              value="${node.parent.data.provinsi_id}" 
+            />
+            <input 
+              hidden
+              id="tahun"
+              name="tahun"
+              type="text" 
+              value="2019"
+            />
+            <input 
+              hidden
+              id="data_pendukung"
+              name="data_pendukung"
+              type="text" 
+              value=""
+            />
+            <input 
+              required
+              id="add-child-isu"
+              name="nama_isu"
+              type="text" 
+              value="Masukkan Isu Baru" 
+              style="width: 350px;"
+            />
+            <input type="submit" hidden />
+          </form>
+        `;
+      }
       treeBoxes(treeData);
     </script>
   </body>

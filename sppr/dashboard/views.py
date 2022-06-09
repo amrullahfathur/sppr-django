@@ -97,7 +97,7 @@ def profil(request, menu):
     request_get = request.GET.get('options', "0-0")
     pilih_provinsi = int(request_get.split("-")[0])
     pilih_tahun = int(request_get.split("-")[1])
-    pilih_isu_strategis = int(request.GET.get('pilih_isu_strategis', 0))
+    pilih_isu_strategis = int(request_get.split('-')[1])
     tujuans = []
     isu_strategis = []
     output_korelasi = []
@@ -168,20 +168,31 @@ def profil(request, menu):
             head = NewIsuStrategis.objects.get(id=pilih_isu_strategis)
 
             data = {
+                'id': head.id,
+                'provinsi_id': head.provinsi_id,
                 'name': head.nama_isu, 
-            'fill': '#260df0', 
+                'fill': '#260df0', 
                 'children': [{
+                    'provinsi_id': head.provinsi_id,
+                    'id': children_lvl_1.id,
                     'name': children_lvl_1.nama_isu,
                     'fill': '#301bdd',
                     'children': [{
+                        'provinsi_id': head.provinsi_id,
+                        'id': children_lvl_2.id,
                         'name': children_lvl_2.nama_isu,
                         'fill': '#4a3ace',
                         'children': [{
+                            'provinsi_id': head.provinsi_id,
+                            'id': children_lvl_3.id,
                             'name': children_lvl_3.nama_isu,
                             'fill': '#7467dd',
                             'children': [{
+                                'provinsi_id': head.provinsi_id,
+                                'id': children_lvl_4.id,
                                 'name': children_lvl_4.nama_isu,
-                                'fill': '#cbc5f8'
+                                'fill': '#cbc5f8',
+                                'children': []
                             } for children_lvl_4 in children_lvl_3.get_children()]
                         } for children_lvl_3 in children_lvl_2.get_children()]
                     } for children_lvl_2 in children_lvl_1.get_children()]
@@ -902,17 +913,33 @@ def updateHasilSkoring(request, pk):
 @login_required(login_url='login')
 def addIsuStrategis(request):
 
+    isu_id = 0
+    provinsi_id = 0
+    nama_isu = ""
+    page_referer = request.META.get('HTTP_REFERER').split("/")[4]
     form = IsuStrategisForm()
 
     if request.method == 'POST':
         form = IsuStrategisForm(request.POST)
+        isu_id = request.META.get('HTTP_REFERER').split("-")[1]
+        provinsi_id = request.POST.get('provinsi', 0)
+        nama_isu = request.POST.get('nama_isu', "")
         if form.is_valid():
             form.save()
-            messages.success(request, 'Berhasil Menambahkan Isu Strategis Baru!')
-            return HttpResponseRedirect('/forms/isu_strategis/add')
+            messages.success(request, 'Berhasil Menambahkan Anak Isu Strategis Baru!')
+            if page_referer == "pis_diagram":
+                return HttpResponseRedirect(f'/profil/pis_diagram?options={provinsi_id}-{isu_id}')
+            elif page_referer == "isu_strategis":
+                isu_strategis = NewIsuStrategis.objects.get(provinsi=provinsi_id, nama_isu=nama_isu)
+                isu_id = isu_strategis.id
+                messages.success(request, 'Berhasil Menambahkan Kepala Isu Strategis Baru!')
+            return HttpResponseRedirect(f'/profil/pis?options={provinsi_id}-{isu_id}')
         else:
             messages.error(request, 'Gagal Menambahkan Isu Strategis')
-            return HttpResponseRedirect('/forms/isu_strategis/add')
+            if page_referer == "profil":
+                return HttpResponseRedirect('/profil/pis')
+            else:
+                return HttpResponseRedirect('/forms/isu_strategis/add')
 
     return render(request, 'forms/isu-strategis.html', {'content': {
         'form': form
