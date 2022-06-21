@@ -946,7 +946,7 @@ def addIsuStrategis(request):
 
     if request.method == 'POST':
         form = IsuStrategisForm(request.POST)
-        isu_id = request.META.get('HTTP_REFERER').split("-")[1]
+        isu_id = request.META.get('HTTP_REFERER').split("-")[1] if page_referer != "isu_strategis" else 0
         provinsi_id = request.POST.get('provinsi', 0)
         nama_isu = request.POST.get('nama_isu', "")
         if form.is_valid():
