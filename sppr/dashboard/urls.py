@@ -82,6 +82,8 @@ urlpatterns = [
          views.addIsuStrategis, name='addIsu'),
     path('forms/isu_strategis/edit',
          views.editIsuStrategis, name='editIsu'),
+    path('forms/isu_strategis/delete/<int:isu_id>',
+         views.deleteIsuStrategis, name='deleteIsu'),
 
     # Path to CRUD Skoring
     path('forms/skoring/update/<int:pk>',

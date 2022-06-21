@@ -38,13 +38,6 @@ d3.contextMenu = function (menu, openCallback) {
 				}
 				return html;
 			})
-			.attr('class', function(d) {
-				const id = d.title.split(" ")[0]
-				switch (id) {
-					case "Hapus":
-						return "disabled"
-				}
-			})
 			.on('click', function(d, i) {
 				d.action(elm, data, index);
 				d3.select('.d3-context-menu').style('display', 'none');

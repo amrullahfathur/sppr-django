@@ -36,11 +36,7 @@ function treeBoxes(treeData) {
     {
       title: `Hapus Isu`,
       action: function (elm, d, i) {
-        console.log("Create child node");
-        create_node_parent = d;
-        create_node_modal_active = true;
-        $("#CreateNodeModal").foundation("reveal", "open");
-        $("#CreateNodeName").focus();
+        delete_node(d)
       }
     }
   ];
@@ -137,6 +133,32 @@ function treeBoxes(treeData) {
     let provinsiId = node.data.provinsi_id
     let pageReferer = window.location.pathname.split("/")[2]
     window.location.href = `/forms/isu_strategis/edit?provinsi_id=${provinsiId}&isu_id=${isuId}&page_referer=${pageReferer}`
+  }
+
+  // delete current node
+  function delete_node(node) {
+    console.log(node);
+    isuId = node.data.id
+    isuName = node.data.name
+
+    window.location.href = "#modal-delete-confirmation"
+    d3.select('.d3-context-menu').style('display', 'none');
+
+    $(`#modal-delete-title`).replaceWith(`
+      <h3 class="font-bold text-lg" id="modal-delete-title">
+        Konfirmasi Penghapusan Isu Strategis ID (${isuId})
+      </h3>
+    `)
+
+    $(`#modal-delete-message`).replaceWith(`
+      <p class="py-4" id="modal-delete-message">
+        Apakah Anda yakin untuk menghapus isu berikut: <br /> <b>${isuName}!</b>
+      </p>
+    `)
+
+    $(`#modal-delete-yes`).replaceWith(`
+      <a href="/forms/isu_strategis/delete/${isuId}" class="btn btn-error" id="modal-delete-yes">Hapus</a>
+    `)
   }
 
   // A recursive helper function for performing some setup by walking through all nodes

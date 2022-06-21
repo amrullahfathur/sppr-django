@@ -1009,6 +1009,21 @@ def editIsuStrategis(request):
         'page_mode': page_mode
     }})
 
+# Delete Isu Strategis
+
+
+@login_required(login_url='login')
+def deleteIsuStrategis(request, isu_id):
+    page_referer = request.META.get('HTTP_REFERER').split("/")[4]
+    isu_instance = NewIsuStrategis.objects.get(pk=isu_id)
+    provinsi_id = isu_instance.provinsi_id
+    head_id = isu_instance.get_ancestors()[0].id if isu_instance.get_ancestors().__len__() != 0 else 0
+    isu_instance.delete()
+    messages.success(request, 'Berhasil Menghapus Isu Strategis') 
+    if page_referer == "pis_diagram":
+        return HttpResponseRedirect(f'/profil/pis_diagram/?options={provinsi_id}-{head_id}')
+    return HttpResponseRedirect(f'/profil/pis/?options={provinsi_id}-{head_id}')
+
 # CRUD Hasil Kerangka Logis
 
 @login_required(login_url='login')
