@@ -263,7 +263,7 @@
             </table>
 
             <button class="bg-purple-500 float-right hover:bg-purple-700 text-white font-bold py-2 px-4 mt-5" onclick="">
-              <a href="{% url 'addSingleLonglist'%}">
+              <a href="{% url 'kebdaerah' 'longlist'%}">
                 <p>Tambahkan Data</p>
               </a>
             </button>
@@ -317,15 +317,15 @@
             {% for tujuan in tujuans %}
             <tbody id="tujuan-data">
               <tr class="text-center p-4">
-                <td colspan="7" class="border-dashed border-t bg-purple-500 text-white font-bold text-left p-3" style="padding-left: 100px;">
-                  Tujuan {{ forloop.counter }}: {{ tujuan.nama_tujuan }}
+                <td colspan="7" class="border-dashed border-t bg-purple-500 text-white font-bold text-center p-3">
+                  Tujuan: {{ tujuan.nama_tujuan }}
                 </td>
               </tr>
               <tr>
                 {% for sasaran in tujuan.sasaranlfa_set.all %}
                 <tbody id="sasaran-data">
                   <tr class="text-center p-4">
-                    <td colspan="7" class="border-dashed border-t bg-purple-400 text-white font-bold text-left p-3" style="padding-left: 200px;">
+                    <td colspan="7" class="border-dashed border-t bg-purple-400 text-white font-bold text-center p-3">
                       Sasaran: {{ sasaran.nama_sasaran }}
                     </td>
                   </tr>
@@ -336,17 +336,9 @@
                         <tr class="text-center p-4">
                           <td
                             colspan="7"
-                            class="border-dashed border-t bg-purple-300 text-gray-800 font-bold text-left p-3"
-                            style="padding-left: 300px;"
+                            class="border-dashed border-t bg-purple-300 text-gray-800 font-bold text-center p-3"
                           >
                             Output: {{ output.nama_output }}
-                            <button
-                              id="button-{{ output.id }}"
-                              class="collapse bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l"
-                              onclick="toggleModal('{{ output.id }}')"
-                            >
-                              <i class="fa-solid fa-arrow-down"></i>
-                            </button>
                           </td>
                         </tr>
                         <tr class="text-center" id="{{ output.id }}">
@@ -354,14 +346,14 @@
                             <p>
                               {{ output.nama_output }}
                             </p>
-                            <div>
+                            <!-- <div>
                               <button
                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-5"
                                 onclick="toggleModal('{{ output.longlist_set.all.0.id | default:"no-data" }}')"
                               >
                                 <p>Hasil Regresi</p>
                               </button>
-                            </div>
+                            </div> -->
                           </td>
                           <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
                             <ul style="list-style-type: circle; text-align: left; margin-left: 20px;">
@@ -395,7 +387,7 @@
                               colspan="7"
                               class="border-dashed border-t bg-purple-100 text-gray-800 font-bold text-center p-3"
                             >
-                              Aktivitas: Peningkatan Kompetensi lulusan SMK yang sesuai dengan kebutuhan Dunia Usaha dan Industri (DUDI)
+                              Aktivitas: {% lorem 10 w random %}
                               <button
                                 id="button-aktivitas-{{ output.id }}"
                                 class="collapse bg-gray-600 hover:bg-gray-800 text-white font-bold m-1 p-1 rounded-l"
@@ -407,41 +399,28 @@
                           </tr>
                           <tr class="text-center" id="aktivitas-toggle-{{ output.id }}">
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              Peningkatan Kompetensi lulusan SMK yang sesuai dengan kebutuhan Dunia Usaha dan Industri
-                              (DUDI)
-                              <button
+                              {% lorem 10 w random %}
+                              <!-- <button
                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-5"
                                 onclick="toggleModal('modal-id')"
                               >
                                 <p>Hasil Korelasi</p>
-                              </button>
+                              </button> -->
                             </td>
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              Jumlah lulusan SMK yang menganggur
+                              {% lorem 5 w random %}
                             </td>
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              Dokumen Provinsi dalam angka
+                              {% lorem 10 w random %}
                             </td>
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              1. Adanya minat lulusan SMK untuk bekerja sesuai bidangnya 2. Kompetensi menjadi
-                              pertimbangan utama oleh DUDI untuk lulusan SMK 3. Dengan meningkatnya kompetensi lulusan SMK
-                              yang sesuai dengan kebutuhan DUDI, maka jumlah lulusan SMK yang menganggur akan menurun
-                            </td>
+                              {% lorem 6 w random %}
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              1. Adanya minat lulusan SMK untuk bekerja sesuai bidangnya 2. Kompetensi menjadi
-                              pertimbangan utama oleh DUDI untuk lulusan SMK 3. Dengan meningkatnya kompetensi lulusan SMK
-                              yang sesuai dengan kebutuhan DUDI, maka jumlah lulusan SMK yang menganggur akan menurun
-                            </td>
+                              {% lorem 8 w random %}
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              1. Adanya minat lulusan SMK untuk bekerja sesuai bidangnya 2. Kompetensi menjadi
-                              pertimbangan utama oleh DUDI untuk lulusan SMK 3. Dengan meningkatnya kompetensi lulusan SMK
-                              yang sesuai dengan kebutuhan DUDI, maka jumlah lulusan SMK yang menganggur akan menurun
-                            </td>
+                              {% lorem 4 w random %}
                             <td class="border-dashed border-t bg-purple-300 text-gray-800 text-center p-3">
-                              1. Adanya minat lulusan SMK untuk bekerja sesuai bidangnya 2. Kompetensi menjadi
-                              pertimbangan utama oleh DUDI untuk lulusan SMK 3. Dengan meningkatnya kompetensi lulusan SMK
-                              yang sesuai dengan kebutuhan DUDI, maka jumlah lulusan SMK yang menganggur akan menurun
-                            </td>
+                              {% lorem 11 w random %}
                         </tr>
                         </tbody>
                       </tr>
