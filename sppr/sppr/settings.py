@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e*f+x6&47eo7e9wu-lf$=tr#-!y$3@_^1l=nkd$@$d_ed_mu$-'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -100,19 +100,7 @@ WSGI_APPLICATION = 'sppr.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dit_regional1',
-        'USER': 'dit_regional1',
-        'PASSWORD': 'regionals4tu',
-        'HOST': '10.1.178.88',
-        'PORT': '5432',
-        'TEST': {
-            'NAME': 'dit_regional1'
-        }
-    }
-}
+DATABASES = {'default': {}}
 
 
 # Password validation
